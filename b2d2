@@ -1,0 +1,33 @@
+#!/usr/bin/env node
+
+const program = require('commander');
+
+const {initializeGradebook, addStudent, importRoster, showGradebook} = require('./index');
+
+program
+  .version('1.0.0')
+  .description('Gradebook API')
+
+program
+  .command('init')
+  .description('Create a new empty grade book')
+  .action(() => initializeGradebook());
+
+program
+  .command('add')
+  .alias('a')
+  .description('Add student')
+  .action(() => addStudent());
+
+program
+  .command('import <file> <course> <section>')
+  .description('Import Banner roster')
+  .action((file, course, section) => importRoster(file, course, section));
+
+program
+  .command('show')
+  .description('Show full gradebook')
+  .action(() => showGradebook());
+
+
+program.parse(process.argv);
