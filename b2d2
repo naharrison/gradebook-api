@@ -2,7 +2,7 @@
 
 const program = require('commander');
 
-const {initializeGradebook, addStudent, importRoster, showGradebook} = require('./index');
+const {initializeGradebook, addStudent, importRoster, showGradebook, addGradeColumn, addGrade} = require('./index');
 
 program
   .version('1.0.0')
@@ -14,8 +14,8 @@ program
   .action(() => initializeGradebook());
 
 program
-  .command('add')
-  .alias('a')
+  .command('addstudent')
+  .alias('as')
   .description('Add student')
   .action(() => addStudent());
 
@@ -28,6 +28,18 @@ program
   .command('show')
   .description('Show full gradebook')
   .action(() => showGradebook());
+
+program
+  .command('addgradecolumn <colname>')
+  .alias('agc')
+  .description('Add a new grade column')
+  .action((colname) => addGradeColumn(colname));
+
+program
+  .command('addgrade <colname> <student> <score>')
+  .alias('ag')
+  .description('Add student score')
+  .action((colname, student, score) => addGrade(colname, student, score));
 
 
 program.parse(process.argv);
