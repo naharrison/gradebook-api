@@ -9,9 +9,9 @@ program
   .description('Gradebook API')
 
 program
-  .command('init')
+  .command('init <course> <section>')
   .description('Create a new empty grade book')
-  .action(() => initializeGradebook());
+  .action((course, section) => initializeGradebook(course, section));
 
 program
   .command('addstudent')
@@ -25,21 +25,23 @@ program
   .action((file, course, section) => importRoster(file, course, section));
 
 program
-  .command('show')
-  .description('Show full gradebook')
-  .action(() => showGradebook());
-
-program
-  .command('addgradecolumn <colname>')
+  .command('addgradecolumn <colname> <course> <section>')
   .alias('agc')
   .description('Add a new grade column')
-  .action((colname) => addGradeColumn(colname));
+  .action((colname, course, section) => addGradeColumn(colname, course, section));
 
 program
   .command('addgrade <colname> <student> <score>')
   .alias('ag')
   .description('Add student score')
   .action((colname, student, score) => addGrade(colname, student, score));
+
+program
+  .command('show')
+  .description('Show gradebook')
+  .option('-s, --student <name>', 'Show only one student')
+  //.action((options.student) => showGradebook(options.student));
+  .action( function(options) { showGradebook(options.student) } );
 
 
 program.parse(process.argv);

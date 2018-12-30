@@ -1,11 +1,13 @@
-const {getSemester, getStudentIdFromSearch} = require('./subroutines');
+const {getSemester, getStudentInfoFromSearch} = require('./subroutines');
 
-const initializeGradebook = () => {
-  const dbname = 'gbook.db';
-  const fs = require('fs');
-  if(fs.existsSync(dbname)) fs.unlinkSync(dbname); // delete if already exists
+
+
+const initializeGradebook = (course, section) => {
+  const sem = getSemester();
+  const dbname = 'gbook_' + sem + '.db';
   const db = require('better-sqlite3')(dbname);
-  const sql_create_tbl_stmt = db.prepare('create table gbook(last text, first text, middle text, pref text, sid text, email text, major text, course text, section text, comments text)');
+  const create_tbl_stmt = 'create table gb_' + course + '_' + section + '(last text, first text, middle text, pref text, sid text, email text, major text, comments text)';
+  const sql_create_tbl_stmt = db.prepare(create_tbl_stmt);
   sql_create_tbl_stmt.run();
   db.close();
 }
@@ -27,9 +29,12 @@ const addStudent = () => {
   ];
 
   inquirer.prompt(questions).then(answers => {
-    const db = require('better-sqlite3')('gbook.db');
-    const sql_add_stmt = db.prepare('insert into gbook (last, first, middle, pref, sid, email, major, course, section) values(?,?,?,?,?,?,?,?,?)');
-    sql_add_stmt.run(answers.last, answers.first, answers.middle, answers.pref, answers.sid, answers.email, answers.major, answers.course, answers.section);
+    const sem = getSemester();
+    const dbname = 'gbook_' + sem + '.db';
+    const db = require('better-sqlite3')(dbname);
+    const add_stmt = 'insert into gb_' + answers.course + '_' + answers.section + ' (last, first, middle, pref, sid, email, major) values(?,?,?,?,?,?,?)';
+    const sql_add_stmt = db.prepare(add_stmt);
+    sql_add_stmt.run(answers.last, answers.first, answers.middle, answers.pref, answers.sid, answers.email, answers.major);
     db.close();
   });
 }
@@ -43,9 +48,12 @@ const importRoster = (file, course, section) => {
     var rows = data.toString().split('\n');
     for(var j = 1; j < rows.length - 1; j++) { // first row is column headings
       var info = rows[j].toString().split(',');
-      const db = require('better-sqlite3')('gbook.db');
-      const sql_add_stmt = db.prepare('insert into gbook (last, first, middle, pref, sid, email, major, course, section) values(?,?,?,?,?,?,?,?,?)');
-      sql_add_stmt.run(info[0], info[1], info[2], info[3], info[4], info[5], info[7], course, section); // not everything is used
+      const sem = getSemester();
+      const dbname = 'gbook_' + sem + '.db';
+      const db = require('better-sqlite3')(dbname);
+      const add_stmt = 'insert into gb_' + course + '_' + section + ' (last, first, middle, pref, sid, email, major) values(?,?,?,?,?,?,?)';
+      const sql_add_stmt = db.prepare(add_stmt);
+      sql_add_stmt.run(info[0], info[1], info[2], info[3], info[4], info[5], info[7]); // not everything is used
       db.close();
     }
   });
@@ -53,25 +61,43 @@ const importRoster = (file, course, section) => {
 
 
 
-const showGradebook = () => {
-  const { exec } = require('child_process');
-  exec('sqlite3 -column -header gbook.db "select * from gbook"', (err, stdout, stderr) => {
-    if (err) {
-      return;
+const showGradebook = (student) => {
+  const sem = getSemester();
+  const dbname = 'gbook_' + sem + '.db';
+  const db = require('better-sqlite3')(dbname);
+  const sql_get_tables = db.prepare('SELECT name FROM sqlite_master WHERE type="table"');
+  const tables = sql_get_tables.all();
+
+  if(student === undefined) {
+    for(var i = 0; i < tables.length; i++) {
+      const { exec } = require('child_process');
+      exec('echo ' + tables[i].name + ' ; sqlite3 -column -header ' + dbname + ' "SELECT * FROM ' + tables[i].name + '"', (err, stdout, stderr) => {
+        if (err) return;
+        console.log(`${stdout}`);
+      });
     }
-    console.log(`${stdout}`);
-  });
+  }
+  else {
+    const sinfo = getStudentInfoFromSearch(student);
+    const sid = sinfo.sid;
+    const table = sinfo.table;
+    const { exec } = require('child_process');
+    exec('echo ' + table + ' ; sqlite3 -column -header ' + dbname + ' "SELECT * FROM ' + table + ' WHERE sid=' + sid + '"', (err, stdout, stderr) => {
+      if (err) return;
+      console.log(`${stdout}`);
+    });
+  }
 }
 
 
 
-const addGradeColumn = (colname) => {
-  const sql_stmt = 'sqlite3 gbook.db "ALTER TABLE gbook ADD COLUMN ' + colname + ' FLOAT"';
+const addGradeColumn = (colname, course, section) => {
+  const sem = getSemester();
+  const dbname = 'gbook_' + sem + '.db';
+  const sql_stmt = 'sqlite3 ' + dbname + ' "ALTER TABLE gb_' + course + '_' + section + ' ADD COLUMN ' + colname + ' FLOAT"';
   const { exec } = require('child_process');
   exec(sql_stmt, (err, stdout, stderr) => {
-    if (err) {
-      return;
-    }
+    if (err) return;
     //console.log(sql_stmt);
   });
 }
@@ -79,13 +105,15 @@ const addGradeColumn = (colname) => {
 
 
 const addGrade = (colname, student, score) => {
-  const sid = getStudentIdFromSearch(student);
-  const sql_stmt = 'sqlite3 gbook.db "UPDATE gbook SET ' + colname + ' = ' + score + ' WHERE sid = ' + sid + '"';
+  const sem = getSemester();
+  const dbname = 'gbook_' + sem + '.db';
+  const sinfo = getStudentInfoFromSearch(student);
+  const sid = sinfo.sid;
+  const table = sinfo.table;
+  const sql_stmt = 'sqlite3 ' + dbname + ' "UPDATE ' + table + ' SET ' + colname + ' = ' + score + ' WHERE sid = ' + sid + '"';
   const { exec } = require('child_process');
   exec(sql_stmt, (err, stdout, stderr) => {
-    if (err) {
-      return;
-    }
+    if (err) return;
     //console.log(sql_stmt);
   });
 }
