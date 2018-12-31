@@ -72,3 +72,26 @@ sqlite3 -newline ';' gbook_spring19.db "select email from gb_1001_01"
 sqlite3 -newline ';' gbook_spring19.db "select email from gb_1001_01 where exam1<65"
 sqlite3 -newline ';' gbook_spring19.db "select email from gb_1001_01 where major='BIO'"
 ```
+
+An easy way to create efficient backups is to use `sqlite gbook_spring19.db ".dump"`.
+The output can then be saved to the cloud or elsewhere.
+It should also be possible to automatically send backups to some cloud location (something like `./b2d2 backup`).
+
+Auto attendance feature.
+
+Customizable statistical analysis of grades, histograms, column sorting.
+
+Also store course CRNs in a table (possibly problematic since the code sometimes loops over all tables to search for students).
+
+Add an `addcomment` method.
+
+Display grades only (removing unneeded columns like sid, major, email to save space).
+There are some quick/dirty workaround for this:
+```
+./b2d2 show | cut -c 1-24,75-999999
+sqlite3 -column -header gbook_spring19.db "select test1,test2,test3 from gb_1001_01"
+```
+
+Tab completion.
+
+Adjust max column width of printout. 
