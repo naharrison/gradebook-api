@@ -2,7 +2,7 @@
 
 const program = require('commander');
 
-const {initializeGradebook, addStudent, importRoster, showGradebook, addGradeColumn, addGrade} = require('./index');
+const {initializeGradebook, addStudent, importRoster, showGradebook, addGradeColumn, addGrade, takeAttendance} = require('./index');
 
 program
   .version('1.0.0')
@@ -42,6 +42,12 @@ program
   .option('-s, --student <name>', 'Show only one student')
   //.action((options.student) => showGradebook(options.student));
   .action( function(options) { showGradebook(options.student) } );
+
+program
+  .command('attendance <course> <section>')
+  .alias('att')
+  .description('Take attendance for a class')
+  .action((course, section) => takeAttendance(course, section));
 
 
 program.parse(process.argv);

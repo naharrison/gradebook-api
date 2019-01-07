@@ -3,10 +3,10 @@ An efficient API for managing gradebooks
 
 ## Overview
 D2L - the standard gradebook tool at UNG - is extremely slow and lacking in features and customizability.
-For example, to check the progress of a particular student, you first have to navigate to the school webpage, click through a maze of links, enter your username/password TWICE, browse through a lengthy list of past, present, and future courses to find the one you want (and do this several times if you're not sure what class the particular student is in), and finally browse through the class roster to find the student you are looking for.
-This tool, called B2D2, is 10s if not 100s of times faster than D2L for simple tasks like this.
+For example, to check the progress of a particular student, you first have to navigate to the school webpage, click through a maze of links, enter your username/password TWICE, browse through a lengthy unorganized list of past, present, and future courses to find the one you want (and do this several times if you're not sure what class the particular student is in), and finally browse through the class roster to find the student you are looking for.
+This tool, called B2D2, is 10x if not 100x faster than D2L for simple tasks like this.
 It also provides an unlimited amount of customizability.
-It is based on SQL and uses nodejs to automate the most common/repetitive tasks.
+It is based on SQL and uses Nodejs to automate the most common/repetitive tasks.
 
 ## Requirements
 sqlite3
@@ -51,7 +51,7 @@ Kramer      Cosmo                   Kramer      900333333   kramer@gmail.com  EN
 Note that B2D2 implements a "fuzzy-search" so you needn't spell the student's name exactly correctly.
 If the search fails to find exactly one match then it will give you a list of possible matches.
 
-Finally, to add grades, first add the grade column with `./b2d2 addgradecolumn <colname> <course> <section>` or just `./b2d2 agc <colname> <course> <section>`, e.g. `./b2d2 agc test1_40 1001 01`.
+To add grades, first add the grade column with `./b2d2 addgradecolumn <colname> <course> <section>` or just `./b2d2 agc <colname> <course> <section>`, e.g. `./b2d2 agc test1_40 1001 01`.
 And then enter the grades for each student with `./b2d2 addgrade <colname> <student> <score>` or just `./b2d2 ag <colname> <student> <score>`, e.g.:
 ```
 ./b2d2 ag test1_40 eugene 35
@@ -60,8 +60,11 @@ And then enter the grades for each student with `./b2d2 addgrade <colname> <stud
 etc.
 ```
 
+To quickly take attendance, do `./b2d2 attendance <course> <section>` (or just `./b2d2 att <course> <section>`).
+You will receive a prompt for each student, enter `1` for present or `0` for absent.
+
 ## More comments and future work
-This is a work in progress and only basic functionality as been added so far.
+This is a work in progress and only basic functionality has been added so far.
 However, since this is based on SQL you have all the power of SQL at your disposal.
 Some examples:
 
@@ -76,8 +79,6 @@ sqlite3 -newline ';' gbook_spring19.db "select email from gb_1001_01 where major
 An easy way to create efficient backups is to use `sqlite gbook_spring19.db ".dump"`.
 The output can then be saved to the cloud or elsewhere.
 It should also be possible to automatically send backups to some cloud location (something like `./b2d2 backup`).
-
-Auto attendance feature.
 
 Customizable statistical analysis of grades, histograms, column sorting.
 
