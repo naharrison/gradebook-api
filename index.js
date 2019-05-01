@@ -155,6 +155,28 @@ const takeAttendance = (course, section) => {
 
 
 
+const calc = (student) => {
+  const sem = getSemester();
+  const dbname = 'gbook_' + sem + '.db';
+  const db = require('better-sqlite3')(dbname);
+  const sql_get_tables = db.prepare('SELECT name FROM sqlite_master WHERE type="table"');
+  const tables = sql_get_tables.all();
+
+  const sinfo = getStudentInfoFromSearch(student);
+  const sid = sinfo.sid;
+  const table = sinfo.table;
+
+  const stmt1 = db.prepare("SELECT a_1_6 FROM " + table + " WHERE sid=" + sid);
+  const a1 = stmt1.get().a_1_6;
+
+  const stmt2 = db.prepare("SELECT a_4_30 FROM " + table + " WHERE sid=" + sid);
+  const a2 = stmt2.get().a_4_30;
+
+  console.log(a1+a2);
+}
+
+
+
 module.exports = {
   initializeGradebook,
   addStudent,
@@ -162,5 +184,6 @@ module.exports = {
   showGradebook,
   addGradeColumn,
   addGrade,
-  takeAttendance
+  takeAttendance,
+  calc
 }

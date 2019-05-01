@@ -2,7 +2,7 @@
 
 const program = require('commander');
 
-const {initializeGradebook, addStudent, importRoster, showGradebook, addGradeColumn, addGrade, takeAttendance} = require('./index');
+const {initializeGradebook, addStudent, importRoster, showGradebook, addGradeColumn, addGrade, takeAttendance, calc} = require('./index');
 
 program
   .version('1.0.0')
@@ -48,6 +48,11 @@ program
   .alias('att')
   .description('Take attendance for a class')
   .action((course, section) => takeAttendance(course, section));
+
+program
+  .command('calc <student>')
+  .description('run calc routine for a given student')
+  .action((student) => calc(student));
 
 
 program.parse(process.argv);
