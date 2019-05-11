@@ -41,6 +41,21 @@ const addStudent = () => {
 
 
 
+const deleteStudent = (student) => {
+  const sem = getSemester();
+  const dbname = 'gbook_' + sem + '.db';
+  const sinfo = getStudentInfoFromSearch(student);
+  const sid = sinfo.sid;
+  const table = sinfo.table;
+  const sql_stmt = 'sqlite3 ' + dbname + ' "DELETE FROM ' + table + ' WHERE sid=' + sid + '"';
+  const { exec } = require('child_process');
+  exec(sql_stmt, (err, stdout, stderr) => {
+    if (err) return;
+  });
+}
+
+
+
 const importRoster = (file, course, section) => {
   fs = require('fs');
   fs.readFile(file, function (err, data) {
@@ -155,6 +170,26 @@ const takeAttendance = (course, section) => {
 
 
 
+const addComment = (student, comment) => {
+  const sem = getSemester();
+  const dbname = 'gbook_' + sem + '.db';
+  const db = require('better-sqlite3')(dbname);
+  const sql_get_tables = db.prepare('SELECT name FROM sqlite_master WHERE type="table"');
+  const tables = sql_get_tables.all();
+
+  const sinfo = getStudentInfoFromSearch(student);
+  const sid = sinfo.sid;
+  const table = sinfo.table;
+
+  const stmt1 = db.prepare("SELECT comments FROM " + table + " WHERE sid=" + sid);
+  const currentComments = stmt1.get().comments;
+
+  const stmt2 = db.prepare('UPDATE ' + table + ' SET comments="' + currentComments + comment + '; "' + ' WHERE sid=' + sid);
+  stmt2.run();
+}
+
+
+
 const calc = (student) => {
   const sem = getSemester();
   const dbname = 'gbook_' + sem + '.db';
@@ -180,10 +215,12 @@ const calc = (student) => {
 module.exports = {
   initializeGradebook,
   addStudent,
+  deleteStudent,
   importRoster,
   showGradebook,
   addGradeColumn,
   addGrade,
   takeAttendance,
+  addComment,
   calc
 }

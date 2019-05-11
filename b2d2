@@ -2,7 +2,7 @@
 
 const program = require('commander');
 
-const {initializeGradebook, addStudent, importRoster, showGradebook, addGradeColumn, addGrade, takeAttendance, calc} = require('./index');
+const {initializeGradebook, addStudent, deleteStudent, importRoster, showGradebook, addGradeColumn, addGrade, takeAttendance, addComment, calc} = require('./index');
 
 program
   .version('1.0.0')
@@ -18,6 +18,12 @@ program
   .alias('as')
   .description('Add student')
   .action(() => addStudent());
+
+program
+  .command('deletestudent <student>')
+  .alias('ds')
+  .description('Delete student')
+  .action((student) => deleteStudent(student));
 
 program
   .command('import <file> <course> <section>')
@@ -48,6 +54,12 @@ program
   .alias('att')
   .description('Take attendance for a class')
   .action((course, section) => takeAttendance(course, section));
+
+program
+  .command('addcomment <student> <comment>')
+  .alias('addc')
+  .description('Add a comment (use quotes!)')
+  .action((student, comment) => addComment(student, comment));
 
 program
   .command('calc <student>')
