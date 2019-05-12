@@ -6,7 +6,7 @@ const initializeGradebook = (course, section) => {
   const sem = getSemester();
   const dbname = 'gbook_' + sem + '.db';
   const db = require('better-sqlite3')(dbname);
-  const create_tbl_stmt = 'create table gb_' + course + '_' + section + '(last text, first text, middle text, pref text, sid text, email text, major text, comments text)';
+  const create_tbl_stmt = 'create table gb_' + course + '_' + section + '(last text, first text, middle text, pref text, sid text, email text, major text, ghub text, comments text)';
   const sql_create_tbl_stmt = db.prepare(create_tbl_stmt);
   sql_create_tbl_stmt.run();
   db.close();
