@@ -63,6 +63,19 @@ etc.
 To quickly take attendance, do `./b2d2 attendance <course> <section>` (or just `./b2d2 att <course> <section>`).
 You will receive a prompt for each student, enter `1` for present or `0` for absent.
 
+### Calculating final grades
+Use `./b2d2 calc <student>` to calculate final grades based on the fully customizable `calc` function in `index.js` (you will have to customize it manually in the code). To do all students at once and then rank based on final score, do, e.g.:
+
+```
+./b2d2 agc total 1111 00
+
+foreach s (`sqlite3 -separator '' gbook_summer19.db "select first, pref, last from gb_1111_00"`)
+foreach? ./b2d2 ag total $s `./b2d2 calc $s`
+foreach? end
+
+sqlite3 -column -header gbook_summer19.db "select first, pref, last, tot, lab from gb_1111_00 order by tot DESC"
+```
+
 ## More comments and future work
 This is a work in progress and only basic functionality has been added so far.
 However, since this is based on SQL you have all the power of SQL at your disposal.
