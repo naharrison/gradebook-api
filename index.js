@@ -182,7 +182,8 @@ const addComment = (student, comment) => {
   const table = sinfo.table;
 
   const stmt1 = db.prepare("SELECT comments FROM " + table + " WHERE sid=" + sid);
-  const currentComments = stmt1.get().comments;
+  var currentComments = stmt1.get().comments;
+  if(currentComments == null) currentComments = "";
 
   const stmt2 = db.prepare('UPDATE ' + table + ' SET comments="' + currentComments + comment + '; "' + ' WHERE sid=' + sid);
   stmt2.run();
