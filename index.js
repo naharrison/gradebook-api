@@ -6,7 +6,7 @@ const initializeGradebook = (course, section) => {
   const sem = getSemester();
   const dbname = 'gbook_' + sem + '.db';
   const db = require('better-sqlite3')(dbname);
-  const create_tbl_stmt = 'create table gb_' + course + '_' + section + '(last text, first text, middle text, pref text, sid text, email text, major text, ghub text, comments text)';
+  const create_tbl_stmt = 'create table gb_' + course + '_' + section + '(last text, first text, middle text, pref text, sid text, email text, major text, comments text, att text)';
   const sql_create_tbl_stmt = db.prepare(create_tbl_stmt);
   sql_create_tbl_stmt.run();
   db.close();
@@ -136,20 +136,44 @@ const addGrade = (colname, student, score) => {
 
 
 const takeAttendance = (course, section) => {
+  // if you want each attendance to be its own column w/ month and day:
+  // const sem = getSemester();
+  // const date = new Date();
+  // const day = date.getDate(); // 1 - 31
+  // const month = date.getMonth() + 1; // 0 - 11 (+ 1)
+  // const colname = "a_" + month + "_" + day;
+  // const dbname = 'gbook_' + sem + '.db';
+  // const table = 'gb_' + course + '_' + section;
+
+  // const sql_addcol = 'sqlite3 ' + dbname + ' "ALTER TABLE ' + table + ' ADD COLUMN ' + colname + ' INT"';
+  // const { exec } = require('child_process');
+  // exec(sql_addcol, (err, stdout, stderr) => { if (err) return; });
+
+  // const db = require('better-sqlite3')(dbname);
+  // const sql_get_list = db.prepare('SELECT last,first,middle,pref,sid FROM gb_' + course + '_' + section);
+  // const class_list = sql_get_list.all();
+
+  // const readline = require('readline').createInterface({ input: process.stdin, output: process.stdout });
+  // var loop = 0;
+  // const asyncReadLine = () => {
+  //   if(loop >= class_list.length) return readline.close();
+  //   const myprompt = class_list[loop].first + " " + class_list[loop].middle + " (" + class_list[loop].pref + ") " + class_list[loop].last + ': ';
+  //   loop++;
+  //   readline.question(myprompt, (cliin) => {
+  //     const sql_stmt = 'sqlite3 ' + dbname + ' "UPDATE ' + table + ' SET ' + colname + ' = ' + cliin + ' WHERE sid = ' + class_list[loop-1].sid + '"';
+  //     const { exec } = require('child_process');
+  //     exec(sql_stmt, (err, stdout, stderr) => { if (err) return; });
+  //     asyncReadLine();
+  //   });
+  // }
+  // asyncReadLine();
+
   const sem = getSemester();
-  const date = new Date();
-  const day = date.getDate(); // 1 - 31
-  const month = date.getMonth() + 1; // 0 - 11 (+ 1)
-  const colname = "a_" + month + "_" + day;
   const dbname = 'gbook_' + sem + '.db';
   const table = 'gb_' + course + '_' + section;
 
-  const sql_addcol = 'sqlite3 ' + dbname + ' "ALTER TABLE ' + table + ' ADD COLUMN ' + colname + ' INT"';
-  const { exec } = require('child_process');
-  exec(sql_addcol, (err, stdout, stderr) => { if (err) return; });
-
   const db = require('better-sqlite3')(dbname);
-  const sql_get_list = db.prepare('SELECT last,first,middle,pref,sid FROM gb_' + course + '_' + section);
+  const sql_get_list = db.prepare('SELECT last,first,middle,pref,sid,att FROM gb_' + course + '_' + section);
   const class_list = sql_get_list.all();
 
   const readline = require('readline').createInterface({ input: process.stdin, output: process.stdout });
@@ -159,7 +183,9 @@ const takeAttendance = (course, section) => {
     const myprompt = class_list[loop].first + " " + class_list[loop].middle + " (" + class_list[loop].pref + ") " + class_list[loop].last + ': ';
     loop++;
     readline.question(myprompt, (cliin) => {
-      const sql_stmt = 'sqlite3 ' + dbname + ' "UPDATE ' + table + ' SET ' + colname + ' = ' + cliin + ' WHERE sid = ' + class_list[loop-1].sid + '"';
+      var currentAtt = class_list[loop-1].att;
+      if(currentAtt == null) currentAtt = "";
+      const sql_stmt = 'sqlite3 ' + dbname + ' \'UPDATE ' + table + ' SET att="' + currentAtt + cliin + '" WHERE sid = ' + class_list[loop-1].sid + '\'';
       const { exec } = require('child_process');
       exec(sql_stmt, (err, stdout, stderr) => { if (err) return; });
       asyncReadLine();
@@ -174,8 +200,6 @@ const addComment = (student, comment) => {
   const sem = getSemester();
   const dbname = 'gbook_' + sem + '.db';
   const db = require('better-sqlite3')(dbname);
-  const sql_get_tables = db.prepare('SELECT name FROM sqlite_master WHERE type="table"');
-  const tables = sql_get_tables.all();
 
   const sinfo = getStudentInfoFromSearch(student);
   const sid = sinfo.sid;
@@ -195,8 +219,6 @@ const calc = (student) => {
   const sem = getSemester();
   const dbname = 'gbook_' + sem + '.db';
   const db = require('better-sqlite3')(dbname);
-  const sql_get_tables = db.prepare('SELECT name FROM sqlite_master WHERE type="table"');
-  const tables = sql_get_tables.all();
 
   const sinfo = getStudentInfoFromSearch(student);
   const sid = sinfo.sid;
