@@ -45,6 +45,7 @@ const deleteStudent = (student) => {
   const sem = getSemester();
   const dbname = 'gbook_' + sem + '.db';
   const sinfo = getStudentInfoFromSearch(student);
+  if(sinfo == undefined) return;
   const sid = sinfo.sid;
   const table = sinfo.table;
   const sql_stmt = 'sqlite3 ' + dbname + ' "DELETE FROM ' + table + ' WHERE sid=' + sid + '"';
@@ -94,6 +95,7 @@ const showGradebook = (student) => {
   }
   else {
     const sinfo = getStudentInfoFromSearch(student);
+    if(sinfo == undefined) return;
     const sid = sinfo.sid;
     const table = sinfo.table;
     const { exec } = require('child_process');
@@ -123,6 +125,7 @@ const addGrade = (colname, student, score) => {
   const sem = getSemester();
   const dbname = 'gbook_' + sem + '.db';
   const sinfo = getStudentInfoFromSearch(student);
+  if(sinfo == undefined) return;
   const sid = sinfo.sid;
   const table = sinfo.table;
   const sql_stmt = 'sqlite3 ' + dbname + ' "UPDATE ' + table + ' SET ' + colname + ' = ' + score + ' WHERE sid = ' + sid + '"';
@@ -202,6 +205,7 @@ const addComment = (student, comment) => {
   const db = require('better-sqlite3')(dbname);
 
   const sinfo = getStudentInfoFromSearch(student);
+  if(sinfo == undefined) return;
   const sid = sinfo.sid;
   const table = sinfo.table;
 
@@ -221,6 +225,7 @@ const calc = (student) => {
   const db = require('better-sqlite3')(dbname);
 
   const sinfo = getStudentInfoFromSearch(student);
+  if(sinfo == undefined) return;
   const sid = sinfo.sid;
   const table = sinfo.table;
 

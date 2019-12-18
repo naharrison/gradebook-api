@@ -31,17 +31,20 @@ const getStudentInfoFromSearch = (searchString) => {
   }
 
 
+  var match_threshold = 0.35;
+  if(searchString.charAt(0) >= '0' && searchString.charAt(0) <= '9') match_threshold = 0.0;
+
   var options = {
     caseSensitive: false,
     shouldSort: true,
     tokenize: true,
     matchAllTokens: true,
-    threshold: 0.4, // 0.0 will only return exact matches, 1.0 will return anything
+    threshold: match_threshold, // 0.0 will only return exact matches, 1.0 will return anything
     location: 0,
     distance: 100,
     maxPatternLength: 32,
     minMatchCharLength: 1,
-    keys: ["squishedname"]
+    keys: ["squishedname", "sid"]
   };
 
   const Fuse = require('fuse.js');
@@ -58,7 +61,6 @@ const getStudentInfoFromSearch = (searchString) => {
     return;
   }
   else if(search_result.length == 1) {
-    //console.log(search_result[0]);
     return search_result[0];
   }
 }
