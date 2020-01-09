@@ -6,7 +6,7 @@ const initializeGradebook = (course, section) => {
   const sem = getSemester();
   const dbname = 'gbook_' + sem + '.db';
   const db = require('better-sqlite3')(dbname);
-  const create_tbl_stmt = 'create table gb_' + course + '_' + section + '(last text, first text, middle text, pref text, sid text, email text, major text, comments text, att text)';
+  const create_tbl_stmt = 'create table gb_' + course + '_' + section + '(last text, first text, middle text, pref text, sid text, email text, major text, comments text, att text, checks text)';
   const sql_create_tbl_stmt = db.prepare(create_tbl_stmt);
   sql_create_tbl_stmt.run();
   db.close();
@@ -219,6 +219,26 @@ const addComment = (student, comment) => {
 
 
 
+const checkoff = (student) => {
+  const sem = getSemester();
+  const dbname = 'gbook_' + sem + '.db';
+  const db = require('better-sqlite3')(dbname);
+
+  const sinfo = getStudentInfoFromSearch(student);
+  if(sinfo == undefined) return;
+  const sid = sinfo.sid;
+  const table = sinfo.table;
+
+  const stmt1 = db.prepare("SELECT checks FROM " + table + " WHERE sid=" + sid);
+  var currentChecks = stmt1.get().checks;
+  if(currentChecks == null) currentChecks = "";
+
+  const stmt2 = db.prepare('UPDATE ' + table + ' SET checks="' + currentChecks + '1' + '"' + ' WHERE sid=' + sid);
+  stmt2.run();
+}
+
+
+
 const calc = (student) => {
   const sem = getSemester();
   const dbname = 'gbook_' + sem + '.db';
@@ -229,13 +249,11 @@ const calc = (student) => {
   const sid = sinfo.sid;
   const table = sinfo.table;
 
-  const stmt1 = db.prepare("SELECT a_1_6 FROM " + table + " WHERE sid=" + sid);
-  const a1 = stmt1.get().a_1_6;
+  const stmt_att = db.prepare("SELECT att FROM " + table + " WHERE sid=" + sid);
+  const att = stmt_att.get().att;
+  const att_count = (att.match(/1/g) || []).length;
 
-  const stmt2 = db.prepare("SELECT a_4_30 FROM " + table + " WHERE sid=" + sid);
-  const a2 = stmt2.get().a_4_30;
-
-  console.log(a1+a2);
+  console.log(att_count);
 }
 
 
@@ -250,5 +268,6 @@ module.exports = {
   addGrade,
   takeAttendance,
   addComment,
+  checkoff,
   calc
 }
