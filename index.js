@@ -219,7 +219,7 @@ const addComment = (student, comment) => {
 
 
 
-const checkoff = (student) => {
+const checkoff = (student, assignmentNo) => {
   const sem = getSemester();
   const dbname = 'gbook_' + sem + '.db';
   const db = require('better-sqlite3')(dbname);
@@ -233,7 +233,7 @@ const checkoff = (student) => {
   var currentChecks = stmt1.get().checks;
   if(currentChecks == null) currentChecks = "";
 
-  const stmt2 = db.prepare('UPDATE ' + table + ' SET checks="' + currentChecks + '1' + '"' + ' WHERE sid=' + sid);
+  const stmt2 = db.prepare('UPDATE ' + table + ' SET checks="' + currentChecks + assignmentNo + '"' + ' WHERE sid=' + sid);
   stmt2.run();
 }
 

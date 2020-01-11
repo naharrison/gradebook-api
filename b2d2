@@ -67,10 +67,10 @@ program
   .action((student) => calc(student));
 
 program
-  .command('checkoff <student>')
+  .command('checkoff <student> <assignmentNo>')
   .alias('check')
   .description('Give a student a participation check mark')
-  .action((student) => checkoff(student));
+  .action((student, assignmentNo) => checkoff(student, assignmentNo));
 
 
 program.parse(process.argv);
