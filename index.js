@@ -81,7 +81,8 @@ const showGradebook = (student) => {
   const sem = getSemester();
   const dbname = 'gbook_' + sem + '.db';
   const db = require('better-sqlite3')(dbname);
-  const sql_get_tables = db.prepare('SELECT name FROM sqlite_master WHERE type="table"');
+  //const sql_get_tables = db.prepare('SELECT name FROM sqlite_master WHERE type="table"');
+  const sql_get_tables = db.prepare('SELECT name FROM sqlite_master');
   const tables = sql_get_tables.all();
 
   if(student === undefined) {

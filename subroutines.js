@@ -11,7 +11,8 @@ const getStudentInfoFromSearch = (searchString) => {
   const dbname = 'gbook_' + sem + '.db';
   const db = require('better-sqlite3')(dbname);
 
-  const sql_get_tables = db.prepare('SELECT name FROM sqlite_master WHERE type="table"');
+  //const sql_get_tables = db.prepare('SELECT name FROM sqlite_master WHERE type="table"');
+  const sql_get_tables = db.prepare('SELECT name FROM sqlite_master');
   const tables = sql_get_tables.all();
 
   var full_list = [];
@@ -61,7 +62,7 @@ const getStudentInfoFromSearch = (searchString) => {
     return;
   }
   else if(search_result.length == 1) {
-    return search_result[0];
+    return search_result[0].item;
   }
 }
 
